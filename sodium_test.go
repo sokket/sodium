@@ -362,3 +362,13 @@ func ExampleMakeKXKP() {
 	//false
 	//false
 }
+
+func TestStream(t *testing.T) {
+	var key CryptoSecretStreamKey
+	Randomize(&key)
+	state := new(CryptoSecretStreamState)
+	header := state.InitPush(key)
+	fmt.Println(header)
+	encrypted := state.Push([]byte("Hello world!"))
+	fmt.Println(encrypted)
+}
