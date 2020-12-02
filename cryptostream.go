@@ -38,11 +38,11 @@ func (CryptoSecretStreamHeader) Size() int {
 	return cryptoSecretStreamHeaderBytes
 }
 
-func (state CryptoSecretStreamState) InitPush(key CryptoSecretStreamKey) CryptoSecretStreamHeader {
+func (state *CryptoSecretStreamState) InitPush(key CryptoSecretStreamKey) CryptoSecretStreamHeader {
 	var header CryptoSecretStreamHeader
 	header.Bytes = make([]byte, header.Size())
 	if int(C.crypto_secretstream_xchacha20poly1305_init_push(
-		(*C.crypto_secretstream_xchacha20poly1305_state)(&state),
+		(*C.crypto_secretstream_xchacha20poly1305_state)(state),
 		(*C.uchar)(&header.Bytes[0]),
 		(*C.uchar)(&key.Bytes[0]),
 	)) != 0 {
@@ -92,9 +92,9 @@ type CryptoSecretStreamChunk struct {
 	Data  []byte
 }
 
-func (state CryptoSecretStreamState) InitPull(key CryptoSecretStreamKey, header CryptoSecretStreamHeader) error {
+func (state *CryptoSecretStreamState) InitPull(key CryptoSecretStreamKey, header CryptoSecretStreamHeader) error {
 	if int(C.crypto_secretstream_xchacha20poly1305_init_pull(
-		(*C.crypto_secretstream_xchacha20poly1305_state)(&state),
+		(*C.crypto_secretstream_xchacha20poly1305_state)(state),
 		(*C.uchar)(&header.Bytes[0]),
 		(*C.uchar)(&key.Bytes[0]),
 	)) != 0 {
