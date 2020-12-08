@@ -51,27 +51,27 @@ func (state *CryptoSecretStreamState) InitPush(key CryptoSecretStreamKey) Crypto
 	return header
 }
 
-func (state CryptoSecretStreamState) Push(message []uint8) []byte {
+func (state *CryptoSecretStreamState) Push(message []uint8) []byte {
 	return state.push(message, cryptoSecretStreamTagMessage)
 }
 
-func (state CryptoSecretStreamState) PushFinal(message []uint8) []byte {
+func (state *CryptoSecretStreamState) PushFinal(message []uint8) []byte {
 	return state.push(message, cryptoSecretStreamTagFinal)
 }
 
-func (state CryptoSecretStreamState) PushEnd(message []uint8) []byte {
+func (state *CryptoSecretStreamState) PushEnd(message []uint8) []byte {
 	return state.push(message, cryptoSecretStreamTagPush)
 }
 
-func (state CryptoSecretStreamState) PushReKey(message []uint8) []byte {
+func (state *CryptoSecretStreamState) PushReKey(message []uint8) []byte {
 	return state.push(message, cryptoSecretStreamTagReKey)
 }
 
-func (state CryptoSecretStreamState) push(message []uint8, tag uint8) []byte {
+func (state *CryptoSecretStreamState) push(message []uint8, tag uint8) []byte {
 	messageLen := uint64(len(message))
 	encrypted := make([]uint8, len(message)+int(cryptoSecretStreamABytes))
 	if int(C.crypto_secretstream_xchacha20poly1305_push(
-		(*C.crypto_secretstream_xchacha20poly1305_state)(&state),
+		(*C.crypto_secretstream_xchacha20poly1305_state)(state),
 		(*C.uchar)(&encrypted[0]),
 		(*C.ulonglong)(nil),
 		(*C.uchar)(&message[0]),
@@ -103,12 +103,12 @@ func (state *CryptoSecretStreamState) InitPull(key CryptoSecretStreamKey, header
 	return nil
 }
 
-func (state CryptoSecretStreamState) Pull(encrypted []uint8) (CryptoSecretStreamChunk, error) {
+func (state *CryptoSecretStreamState) Pull(encrypted []uint8) (CryptoSecretStreamChunk, error) {
 	encryptedLen := uint64(len(encrypted))
 	decrypted := make([]uint8, len(encrypted)-int(cryptoSecretStreamABytes))
 	var tag uint8
 	if int(C.crypto_secretstream_xchacha20poly1305_pull(
-		(*C.crypto_secretstream_xchacha20poly1305_state)(&state),
+		(*C.crypto_secretstream_xchacha20poly1305_state)(state),
 		(*C.uchar)(&decrypted[0]),
 		(*C.ulonglong)(nil),
 		(*C.uchar)(&tag),
